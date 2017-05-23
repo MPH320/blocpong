@@ -42,11 +42,19 @@ var renderBall = function() {
 	context.strokeStyle = 'white';
 	context.stroke();
 }
+var render = function() {
+	renderCanvas();
+	renderPlayer();
+	renderAI();
+	renderBall();
+}
 
-renderPlayer();
-renderAI();
-renderBall();
-renderCanvas();
+window.onload = function() {
+	render();
+};
+
+
+
 
 
 
