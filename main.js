@@ -13,6 +13,7 @@ var aiY = 70;
 var ballX = canvas.width / 2;
 var ballY = canvas.height / 2;
 var radius = 1;
+var moustYoffset = -250;
 
 var renderCanvas = function() {
 	context.beginPath();
@@ -27,7 +28,7 @@ var renderCanvas = function() {
 
 var renderPlayer = function() {
 	context.fillStyle = 'darkblue';
-	context.fillRect(offsetW+playerX, offsetH+playerY, paddleWidth, paddleHeight);
+	context.fillRect(offsetW+playerX, window.mouseY+moustYoffset, paddleWidth, paddleHeight);
 }
 
 var renderAI = function() {
@@ -49,14 +50,32 @@ var render = function() {
 	renderBall();
 }
 
-window.onload = function() {
-	render();
+var animate = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+    function(step) {
+      window.setTimeout(step, 1000/60);
 };
 
+var step = function() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    render();
+    animate(step);
+};
 
+window.onload = function() {
+	 step(0);
+};
 
-
-
-
+document.onmousemove = function(e) {
+    var event = e || window.event;
+    window.mouseX = event.clientX;
+    window.mouseY = event.clientY;
+		
+		if (window.mouseY>353){
+			window.mouseY=353;
+		}
+		if (window.mouseY<272){
+			window.mouseY=272;
+		}
+}
 	
 
