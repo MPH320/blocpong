@@ -19,6 +19,9 @@ var ballDir = 0;
 var oldTimestamp = 0;
 window.mouseY = 300;
 var ballHistory = [];
+var shakeTime = 120;
+var shakeTimer = shakeTime;
+var shake = false;
 
 var coinFlip = function() {
     return Math.floor(Math.random() * 2);
@@ -40,7 +43,35 @@ var random = function(min, max) {
 	return Math.random() * (max - min) + min;
 };
 
+var randomShake = function() {
+	var heightShake = Math.random() * (6 + 6) - 6;
+	var widthShake =  Math.random() * (6 + 6) - 6;
+	
+	context.beginPath();
+	context.moveTo(offsetW+widthShake, offsetH+heightShake);
+	context.lineTo(width+widthShake, offsetH+heightShake);
+	context.lineTo(width+widthShake, height+heightShake);
+	context.lineTo(offsetW+widthShake, height+heightShake);
+	context.lineTo(offsetW+widthShake, offsetH+heightShake);
+	context.strokeStyle = '#ffffff';
+	context.stroke();
+	
+	context.fillStyle = 'rgba(0, 0, 0, .05)';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+};
+
 var renderCanvas = function() {
+	
+	if (shake){
+		while(shakeTimer>0){
+			console.log("Shake");
+			shakeTimer--;
+			randomShake();
+		}
+		shakeTimer=shakeTime;
+		shake = false;
+	}
+	
 	context.beginPath();
 	context.moveTo(offsetW, offsetH);
 	context.lineTo(width, offsetH);
@@ -81,8 +112,10 @@ var ballMovement = function(time) {
 	
 	//scored a point
 	if (ballX < 55){
+		shake = true;
 		ballServe();
 	}else if (ballX > 245){
+		shake = true;
 		ballServe();
 	}
 	
@@ -94,7 +127,6 @@ var ballMovement = function(time) {
 		ballHistory.splice(0,1);
 	}
 	
-	console.log(ballHistory);
 }
 
 var renderBall = function() {
