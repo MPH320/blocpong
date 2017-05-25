@@ -14,7 +14,7 @@ var ballX = canvas.width / 2;
 var ballY = canvas.height / 2;
 var radius = 1;
 var moustYoffset = -250;
-var ballSpeed = 0.1;
+var ballSpeed = 0.15;
 var ballDir = 0;
 var oldTimestamp = 0;
 window.mouseY = 300;
@@ -23,6 +23,30 @@ var shakeTime = 120;
 var shakeTimer = shakeTime;
 var shake = false;
 var explosion = [];
+
+
+  // sounds:
+  var explosionSound = new buzz.sound("assets/sounds/explosion/explosion1.wav");
+	var bounceSound = new buzz.sound("assets/sounds/bounce/bounce1.wav");
+	var hitSound = new buzz.sound("assets/sounds/hit/hit1.wav");
+
+var playHit = function() {
+	var soundNum = Math.floor(random(1, 6))
+	hitSound = new buzz.sound("assets/sounds/hit/hit" + soundNum + ".wav");
+  hitSound.play();	 
+};
+
+var playExplosion = function() {
+	var soundNum = Math.floor(random(1, 6))
+	explosionSound = new buzz.sound("assets/sounds/explosion/explosion" + soundNum + ".wav");
+  explosionSound.play();	 
+};
+
+var playBounce = function() {
+	var soundNum = Math.floor(random(1, 6))
+	bounceSound = new buzz.sound("assets/sounds/bounce/bounce" + soundNum + ".wav");
+  bounceSound.play();	 
+};
 
 var coinFlip = function() {
     return Math.floor(Math.random() * 2);
@@ -65,7 +89,6 @@ var renderCanvas = function() {
 	
 	if (shake){
 		while(shakeTimer>0){
-			console.log("Shake");
 			shakeTimer--;
 			randomShake();
 		}
@@ -97,27 +120,32 @@ var ballMovement = function(time) {
 
 	if (ballY < 22 || ballY > 122) { //out of bounds above/below
   	ballDir = 2 * Math.PI - ballDir;
+		playHit();
   } 
 	else if (ballX > 230) { 
 		if(ballY > aiY+offsetH && ballY < offsetH+aiY+paddleHeight) //ai ball hit
 		{
 			ballDir = Math.PI - ballDir;
+			playBounce();
 		} 
   } 
 	else if (ballX < 70) { 
 		if(ballY > playerY && ballY < playerY+paddleHeight) //player ball hit
 		{
 			ballDir = Math.PI - ballDir;
+			playBounce();
 		} 
   }
 	
 	//scored a point
 	if (ballX < 55){
 		startDoubleExplosion(ballX, ballY);
+		playExplosion();
 		shake = true;
 		ballServe();
 	}else if (ballX > 245){
 		startDoubleExplosion(ballX, ballY);
+		playExplosion();
 		shake = true;
 		ballServe();
 	}
@@ -148,7 +176,7 @@ var renderTrail = function() {
 		context.beginPath();
 		context.arc(pos[0], pos[1], .5, 0, 2 * Math.PI, false);
 		context.lineWidth = .5;
-		context.strokeStyle = '#ffffff';
+		context.strokeStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
 		context.stroke();
 	}
 	
@@ -301,8 +329,8 @@ function updateAndDrawExplosion(delta) {
 }
 
 function startDoubleExplosion(a, b) {
-	createExplosion(a, b, "#525252");
-	createExplosion(a, b, "#FFA318");
+	createExplosion(a, b, '#'+Math.floor(Math.random()*16777215).toString(16));
+	createExplosion(a, b, '#'+Math.floor(Math.random()*16777215).toString(16));
 }
 
 function removeFromArray(array, object) {
