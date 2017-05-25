@@ -18,6 +18,7 @@ var ballSpeed = 0.1;
 var ballDir = 0;
 var oldTimestamp = 0;
 window.mouseY = 300;
+var ballHistory = [];
 
 var coinFlip = function() {
     return Math.floor(Math.random() * 2);
@@ -87,6 +88,13 @@ var ballMovement = function(time) {
 	
 	ballX += ballSpeed * time * Math.cos(ballDir);
   ballY += ballSpeed * time * Math.sin(ballDir);
+
+	ballHistory.push([ballX, ballY]);
+	if (ballHistory.length > 25){
+		ballHistory.splice(0,1);
+	}
+	
+	console.log(ballHistory);
 }
 
 var renderBall = function() {
@@ -95,6 +103,27 @@ var renderBall = function() {
 	context.lineWidth = 2;
 	context.strokeStyle = 'white';
 	context.stroke();
+	renderTrail();
+}
+
+var renderTrail = function() {
+	
+	for(var i = 0; i < ballHistory.length; i++){
+		var pos = ballHistory[i]
+		context.beginPath();
+		context.arc(pos[0], pos[1], .5, 0, 2 * Math.PI, false);
+		context.lineWidth = .5;
+		context.strokeStyle = '#ffffff';
+		context.stroke();
+		
+		
+		
+		
+		
+		
+		
+	}
+	
 }
 
 var render = function(time) {
