@@ -115,13 +115,6 @@ var renderTrail = function() {
 		context.lineWidth = .5;
 		context.strokeStyle = '#ffffff';
 		context.stroke();
-		
-		
-		
-		
-		
-		
-		
 	}
 	
 }
@@ -155,7 +148,8 @@ document.onmousemove = function(e) {
 };
 
 var step = function(timestamp) {
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'rgba(0, 0, 0, .05)';
+  	context.fillRect(0, 0, canvas.width, canvas.height);
     render(timestamp - oldTimestamp);
     animate(step);
 		oldTimestamp = timestamp;
