@@ -23,6 +23,8 @@ var shakeTime = 120;
 var shakeTimer = shakeTime;
 var shake = false;
 var explosion = [];
+var aiSpeed = 1;
+var aiPaddleCenter = 10;
 
 
   // sounds:
@@ -116,6 +118,26 @@ var renderAI = function() {
 	context.fillRect(offsetW+aiX, offsetH+aiY, paddleWidth, paddleHeight);
 }
 
+var moveAI = function() {
+	console.log(aiY);
+	if(ballY < aiY+offsetH+aiPaddleCenter){
+		 if(aiY < 3){
+			aiY = 3;
+		}else {
+			aiY = aiY - aiSpeed;
+		}
+	}
+	
+	else if(ballY > aiY+offsetH+aiPaddleCenter){
+		 if(aiY > 82){ 
+			aiY = 82;
+		}else {
+			aiY = aiY + aiSpeed;
+		}
+	}
+	
+}
+
 var ballMovement = function(time) {
 
 	if (ballY < 22 || ballY > 122) { //out of bounds above/below
@@ -185,6 +207,7 @@ var renderTrail = function() {
 var render = function(time) {
 	renderCanvas();
 	renderPlayer();
+	moveAI();
 	renderAI();
 	ballMovement(time);
 	renderBall();
