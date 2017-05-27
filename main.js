@@ -2,7 +2,7 @@ var width = 250;
 var height = 125;
 var offsetW = 50;
 var offsetH = 20;
-var canvas = document.getElementById('myCanvas');
+var canvas = document.getElementById('Canvas');
 var context = canvas.getContext('2d');
 var paddleWidth = 4;
 var paddleHeight = 20;
@@ -13,7 +13,7 @@ var aiY = 70;
 var ballX = canvas.width / 2;
 var ballY = canvas.height / 2;
 var radius = 1;
-var moustYoffset = -250;
+var mouseYoffset = -75;
 var ballSpeed = 0.15;
 var ballDir = 0;
 var oldTimestamp = 0;
@@ -25,7 +25,8 @@ var shake = false;
 var explosion = [];
 var aiSpeed = 1;
 var aiPaddleCenter = 10;
-
+var playerPoints = 0;
+var aiPoints = 0;
 
   // sounds:
   var explosionSound = new buzz.sound("assets/sounds/explosion/explosion1.wav");
@@ -161,11 +162,13 @@ var ballMovement = function(time) {
 	
 	//scored a point
 	if (ballX < 55){
+		playerPoints+=1;
 		startDoubleExplosion(ballX, ballY);
 		playExplosion();
 		shake = true;
 		ballServe();
 	}else if (ballX > 245){
+		aiPoints+=1;
 		startDoubleExplosion(ballX, ballY);
 		playExplosion();
 		shake = true;
@@ -204,6 +207,19 @@ var renderTrail = function() {
 	
 }
 
+var renderScore = function(){
+		context.fillStyle = 'white';
+		context.font = "20px Arial";
+		if(playerPoints<10){
+			context.fillText(playerPoints+":"+aiPoints,140,145);
+		} else if (playerPoints < 100 ) {
+			context.fillText(playerPoints+":"+aiPoints,130,145);
+		} else {
+			context.fillText(playerPoints+":"+aiPoints,120,145);
+		}
+			
+}
+
 var render = function(time) {
 	renderCanvas();
 	renderPlayer();
@@ -211,6 +227,7 @@ var render = function(time) {
 	renderAI();
 	ballMovement(time);
 	renderBall();
+	renderScore()
 }
 
 var animate = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -223,14 +240,14 @@ document.onmousemove = function(e) {
     window.mouseX = event.clientX;
     window.mouseY = event.clientY;
 		
-		if (window.mouseY>353){
-			window.mouseY=353;
+		if (window.mouseY>357){
+			window.mouseY=357;
 		}
-		if (window.mouseY<272){
-			window.mouseY=272;
+		if (window.mouseY<193){
+			window.mouseY=193;
 		}
 	
-	playerY = window.mouseY+moustYoffset;
+	playerY = window.mouseY/2+mouseYoffset;
 };
 
 var step = function(timestamp) {
