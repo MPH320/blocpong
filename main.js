@@ -34,6 +34,9 @@ var scoreBool = false;
 var playBool = false;
 var ghost = [];
 var passedPaddle = false;
+var win = false;
+var winScore = 6;
+var winExplosions = 6;
 
   // sounds:
   var explosionSound = new buzz.sound("assets/sounds/explosion/explosion1.wav");
@@ -91,6 +94,28 @@ var ballServe = function() {
 
 var random = function(min, max) {
 	return Math.random() * (max - min) + min;
+};
+
+var renderWin = function(min, max) {
+		context.font = "18px Verdana";
+	context.textAlign = "center";
+	
+	//stroke
+	context.fillStyle = "black";
+	context.fillText( "Thanks for playing!", canvas.width/2-1, canvas.height/2-10 );
+	context.fillText( "Thanks for playing!", canvas.width/2,   canvas.height/2-11 );
+	context.fillText( "Thanks for playing!", canvas.width/2+1, canvas.height/2-10 );
+	context.fillText( "Thanks for playing!", canvas.width/2,   canvas.height/2-9 );
+	
+	context.fillText( "Reload to play again.", canvas.width/2-1, canvas.height/2+10 );
+	context.fillText( "Reload to play again.", canvas.width/2,   canvas.height/2+9 );
+	context.fillText( "Reload to play again.", canvas.width/2+1, canvas.height/2+10 );
+	context.fillText( "Reload to play again.", canvas.width/2,   canvas.height/2+11 );
+
+	//draw normal text
+	context.fillStyle = 'white';
+	context.fillText("Thanks for playing!",canvas.width/2, canvas.height/2-10);
+	context.fillText("Reload to play again.",canvas.width/2,canvas.height/2+10); 
 };
 
 var randomShake = function() {
@@ -192,23 +217,42 @@ var ballMovement = function(time) {
 	//scored a point
 	if (ballX < 55){
 		aiPoints+=1;
-		startDoubleExplosion(ballX, ballY);
-		playExplosion();
-		shake = true;
-		ballServe();
-		aiIsMoving = true;
-		ghost[2] = 'darkblue';
-		ghost[3] = true;
+		if(aiPoints == winScore){
+			win = true;
+			while(winExplosions > 0){
+				startDoubleExplosion(ballX, ballY);
+				winExplosions--;
+			}
+		}
+		if(!win){
+			startDoubleExplosion(ballX, ballY);
+			playExplosion();
+			shake = true;
+			ballServe();
+			aiIsMoving = true;
+			ghost[2] = 'darkblue';
+			ghost[3] = true;
+		}
+		
 	} else if (ballX > 245){
 		playerPoints+=1;
-		startDoubleExplosion(ballX, ballY);
-		playExplosion();
-		shake = true;
-		ballServe();
-		aiIsMoving = true;
+		if(playerPoints == winScore){
+			win = true;
+			while(winExplosions > 0){
+				startDoubleExplosion(ballX, ballY);
+				winExplosions--;
+			}
+		}
+		if(!win){
+			startDoubleExplosion(ballX, ballY);
+			playExplosion();
+			shake = true;
+			ballServe();
+			aiIsMoving = true;
 
-		ghost[2] = 'darkred';
-		ghost[3] = false;
+			ghost[2] = 'darkred';
+			ghost[3] = false;
+		}
 	}
 	
 	
@@ -251,8 +295,6 @@ var renderScore = function(){
 		context.font = "18px Arial";
 		if(playerPoints<10){
 			context.fillText(playerPoints+":"+aiPoints,140,146);
-		} else if (playerPoints < 100 ) {
-			context.fillText(playerPoints+":"+aiPoints,130,146);
 		} else {
 			context.fillText(playerPoints+":"+aiPoints,120,146);
 		}
@@ -260,19 +302,24 @@ var renderScore = function(){
 }
 
 var render = function(time) {
-	renderCanvas();
-	renderPlayer();
-	if(aiIsMoving){
-		moveAI();
-	}
-	renderAI();
-	if(playBool){
-		ballMovement(time);
-	} else {
+	if(!win){
+		renderCanvas();
+		renderPlayer();
+		if(aiIsMoving){
+			moveAI();
+		}
+		renderAI();
+		if(playBool){
+			ballMovement(time);
+		} else {
 			renderGhost(ghost[3]);
+		}
+		renderBall();
+		renderScore()
+	} else {
+		renderWin();
 	}
-	renderBall();
-	renderScore()
+	
 }
 
 var animate = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -296,13 +343,16 @@ document.onmousemove = function(e) {
 };
 
 var step = function(timestamp) {
-    context.fillStyle = 'rgba(0, 0, 0, .05)';
-//  	context.fillRect(0, 0, canvas.width, canvas.height);
+	if(!win)
+	{
+		context.fillStyle = 'rgba(0, 0, 0, .05)';
+//  context.fillRect(0, 0, canvas.width, canvas.height);
 		context.fillRect(offsetW, offsetH, width-offsetW, height-offsetH);
-    render(timestamp - oldTimestamp);
-		updateAndDrawExplosion(timestamp - oldTimestamp);
-    animate(step);
-		oldTimestamp = timestamp;
+	}
+	render(timestamp - oldTimestamp);
+	updateAndDrawExplosion(timestamp - oldTimestamp);
+	animate(step);
+	oldTimestamp = timestamp;
 };
 	
 window.onload = function() {
