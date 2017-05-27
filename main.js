@@ -31,6 +31,9 @@ var aiPoints = 0;
 var aiIsMoving = true;
 var speedIncrement = 0.01;
 var scoreBool = false;
+var playBool = false;
+var ghost = [];
+var passedPaddle = false;
 
   // sounds:
   var explosionSound = new buzz.sound("assets/sounds/explosion/explosion1.wav");
@@ -45,6 +48,7 @@ var playHit = function() {
 };
 
 var playExplosion = function() {
+	playBool = false;
 	var soundNum = Math.floor(random(1, 6))
 	explosionSound = new buzz.sound("assets/sounds/explosion/explosion" + soundNum + ".wav");
   explosionSound.play();
@@ -61,6 +65,15 @@ var playBounce = function() {
 
 var coinFlip = function() {
     return Math.floor(Math.random() * 2);
+};
+
+var renderGhost = function(player) {
+	var offset = 0;
+	if(!ghost[3]){
+		offset = offsetH;
+	}
+	context.fillStyle = ghost[2];
+	context.fillRect(offsetW+ghost[0], ghost[1]+offset, paddleWidth, paddleHeight);
 };
 
 var ballServe = function() {
@@ -165,7 +178,16 @@ var ballMovement = function(time) {
 			ballDir = Math.PI - ballDir;
 			playBounce();
 			aiIsMoving = true;
-  } 
+  }
+	
+	if (ballX > 230 && ballX < 235){
+			ghost[0] = aiX;
+			ghost[1] = aiY;
+	}
+	if (ballX < 70 && ballX > 65){
+			ghost[0] = playerX;
+			ghost[1] = playerY;
+	}
 	
 	//scored a point
 	if (ballX < 55){
@@ -175,13 +197,18 @@ var ballMovement = function(time) {
 		shake = true;
 		ballServe();
 		aiIsMoving = true;
-	}else if (ballX > 245){
+		ghost[2] = 'darkblue';
+		ghost[3] = true;
+	} else if (ballX > 245){
 		playerPoints+=1;
 		startDoubleExplosion(ballX, ballY);
 		playExplosion();
 		shake = true;
 		ballServe();
 		aiIsMoving = true;
+
+		ghost[2] = 'darkred';
+		ghost[3] = false;
 	}
 	
 	
@@ -239,7 +266,11 @@ var render = function(time) {
 		moveAI();
 	}
 	renderAI();
-	ballMovement(time);
+	if(playBool){
+		ballMovement(time);
+	} else {
+			renderGhost(ghost[3]);
+	}
 	renderBall();
 	renderScore()
 }
@@ -276,7 +307,15 @@ var step = function(timestamp) {
 	
 window.onload = function() {
 	step(0);
-	ballServe();
+	
+	if (playBool){
+		ballServe();
+	}
+	
+	canvas.addEventListener("mousedown" , function(evt) {
+  	playBool = true;
+  }, false);
+	
 }
 	
 function Particle ()
