@@ -14,7 +14,8 @@ var ballX = canvas.width / 2;
 var ballY = canvas.height / 2;
 var radius = 1;
 var mouseYoffset = -75;
-var defaultSpeed = 0.1;
+//var defaultSpeed = 0.1;
+var defaultSpeed = 0.07;
 var ballSpeed = defaultSpeed;
 var ballDir = 0;
 var oldTimestamp = 0;
@@ -24,12 +25,13 @@ var shakeTime = 120;
 var shakeTimer = shakeTime;
 var shake = false;
 var explosion = [];
-var aiSpeed = 1.2;
+var aiSpeed = 1;
 var aiPaddleCenter = 10;
 var playerPoints = 0;
 var aiPoints = 0;
 var aiIsMoving = true;
-var speedIncrement = 0.01;
+//var speedIncrement = 0.01;
+var speedIncrement = 0.005;
 var scoreBool = false;
 var playBool = false;
 var ghost = [];
@@ -37,6 +39,10 @@ var passedPaddle = false;
 var win = false;
 var winScore = 6;
 var winExplosions = 6;
+var ceiling = 24;
+var floor = 121;
+var enemyYPos = 228;
+var playerYPos = 71;
 
   // sounds:
   var explosionSound = new buzz.sound("assets/sounds/explosion/explosion1.wav");
@@ -70,6 +76,8 @@ var coinFlip = function() {
     return Math.floor(Math.random() * 2);
 };
 
+
+
 var renderGhost = function(player) {
 	var offset = 0;
 	if(!ghost[3]){
@@ -96,8 +104,14 @@ var random = function(min, max) {
 	return Math.random() * (max - min) + min;
 };
 
+	if (coinFlip() == 0) {
+		ballDir = random(-Math.PI/4, Math.PI/4);
+	} else {
+		ballDir = random(Math.PI * 3/4, Math.PI * 5/4);
+	}
+
 var renderWin = function(min, max) {
-		context.font = "18px Verdana";
+	context.font = "18px Verdana";
 	context.textAlign = "center";
 	
 	//stroke
@@ -188,28 +202,32 @@ var moveAI = function() {
 
 var ballMovement = function(time) {
 	
-	ballX += ballSpeed * time * Math.cos(ballDir);
-  ballY += ballSpeed * time * Math.sin(ballDir);
+var nextBallX = ballX + ballSpeed * time * Math.cos(ballDir);
+var nextBallY = ballY + ballSpeed * time * Math.sin(ballDir);
 
-
-	if (ballY < 22 || ballY > 122) { //out of bounds above/below
-  	ballDir = 2 * Math.PI - ballDir;
-		playHit();
-  } else if (ballX > 230 && ballY >= aiY+offsetH && ballY <= offsetH+aiY+paddleHeight) { 
+	if (nextBallY < ceiling || nextBallY > floor) { //out of bounds above/below
+  		ballDir = 2 * Math.PI - ballDir;
+			playHit();
+  } 
+	
+	if (nextBallX > enemyYPos && nextBallY >= aiY+offsetH && nextBallY <= offsetH+aiY+paddleHeight) { 
 			ballDir = Math.PI - ballDir;
 			playBounce();
 			aiIsMoving = false;
-  } else if (ballX < 70 && ballY >= playerY && ballY <= playerY+paddleHeight) { 
+  } 
+	
+	if (nextBallX < playerYPos && nextBallY >= playerY && nextBallY <= playerY+paddleHeight) { 
+
 			ballDir = Math.PI - ballDir;
 			playBounce();
 			aiIsMoving = true;
   }
 	
-	if (ballX > 230 && ballX < 235){
+	if (ballX > 230 && ballX  < 235){
 			ghost[0] = aiX;
 			ghost[1] = aiY;
 	}
-	if (ballX < 70 && ballX > 65){
+	if (ballX< 70 && ballX  > 65){
 			ghost[0] = playerX;
 			ghost[1] = playerY;
 	}
@@ -261,6 +279,9 @@ var ballMovement = function(time) {
 	if (ballHistory.length > 25){
 		ballHistory.splice(0,1);
 	}
+	
+		ballX += ballSpeed * time * Math.cos(ballDir);
+  	ballY += ballSpeed * time * Math.sin(ballDir);
 	
 }
 
@@ -400,9 +421,9 @@ function Particle ()
           // and then later come downwards when our
 		  // gravity is added to it. We should add parameters 
           // for the values that fake the gravity
-          if(this.useGravity) {
-              this.velocityY += Math.random()*4 +4;
-          }
+			if(this.useGravity) {
+					this.velocityY += Math.random()*4 +4;
+			}
 		};
 		
 		this.draw = function(context2D)
@@ -451,7 +472,7 @@ function createExplosion(x, y, color)
 			particle.scaleSpeed = random(0.3, 0.5);
           
             // use gravity
-          particle.useGravity = true;
+      particle.useGravity = true;
 			
 			var speed = random(minSpeed, maxSpeed);
 			
